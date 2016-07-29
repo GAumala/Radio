@@ -6,6 +6,7 @@
 # Folders
 _obj
 _test
+goenv
 
 # Architecture specific extensions/prefixes
 *.[568vq]
