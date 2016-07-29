@@ -11,8 +11,8 @@ configure the GOPATH -> environment variable.
 *  source with the bashrc or zshrc contents...
 *  Check that you can run gnatsd
 *  Start the nats server using gnatsd -DV (DV flags help to show a nice log of the nats clients' actions)
-*  go to the server directory.
-*  Execute go run server.go test.mp3
+*  go to the main directory.
+*  Execute "go run Server/server.go test.mp3"
 
 ### Who do I talk to?
 
