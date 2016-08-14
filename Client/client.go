@@ -23,7 +23,7 @@ func main() {
                         log.Fatal(err)
                 }
         })
-        cmd := exec.Command("/bin/mplayer", "../test.mp3")
+        cmd := exec.Command("/bin/mplayer", "test.mp3")
         err := cmd.Start()
         if err != nil {
                 log.Fatal(err)
