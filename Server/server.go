@@ -31,17 +31,15 @@ func main() {
         // }
         /*---------------------------------------------------------------------------------*/
         it := list_to_send.Iterator()
-        for it.Next() {
+        subject := "Radio-1"
+        for true {
+		if(!it.Next()){
+			it.First()
+		}
                 file, err := ioutil.ReadFile(it.Value().(string))
                 if err != nil {
                         log.Fatal(err)
                 }
-
-                // reset counting
-                if it.Last() {
-                        it.First()
-                }
-
                 //obtener longitud del archivo mp3
                 // out, err := exec.Command("/bin/mp3info","-p","%S","test.mp3").Output()
                 // if err != nil {
@@ -65,17 +63,15 @@ func main() {
                 natsConnection, _ := nats.Connect(nats.DefaultURL)
                 defer natsConnection.Close()
                 log.Println("Connected to " + nats.DefaultURL)
-                for true {
-                        subject := "Radio-1"
 
-                        //err := natsConnection.Publish(subject,[]byte("no vale"))
-                        err := natsConnection.Publish(subject,file)
-                        if err!= nil {
-                                log.Fatal(err)
-                        }
-                        fmt.Println("enviando")
-                        time.Sleep(time.Duration(10)*time.Second + 1) //sleep time = song's length + 1 (10 seconds)
+                //err := natsConnection.Publish(subject,[]byte("no vale"))
+                err_nats := natsConnection.Publish(subject,file)
+                if err_nats!= nil {
+                        log.Fatal(err)
                 }
+                fmt.Println("enviando archivo "+ it.Value().(string))
+                time.Sleep(time.Duration(10)*time.Second + 1) //sleep time = song's length + 1 (10 seconds)
+
         }
 }
 
@@ -83,7 +79,7 @@ func main() {
 func splitmp3(fileName string){
         os.Chdir("./Server/Songs_to_Send/Splits")
         // dir,_:= os.Getwd()
-	cmd := exec.Command("/bin/mp3splt","-S","10","-d",fileName[0:len(fileName)-4],"../"+fileName)
+        cmd := exec.Command("/bin/mp3splt","-S","10","-d",fileName[0:len(fileName)-4],"../"+fileName)
         var out bytes.Buffer
         var stderr bytes.Buffer
         cmd.Stdout = &out
