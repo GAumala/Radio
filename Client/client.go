@@ -49,7 +49,7 @@ func main() {
                         log.Fatal(err)
                 }
                 log.Printf("Waiting for command to finish...")
-                err = cmd.Wait()
+                err = cmd.Wait()		
         }
 }
 // An IntHeap is a min-heap of ints.

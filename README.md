@@ -8,13 +8,15 @@ https://golang.org/dl/
 first clone this repository. Then go to the project directory
 configure the GOPATH -> environment variable.
 *  go get github.com/nats-io/nats
+*  go get github.com/nats-io/gnatsd
+*  go get github.com/emirpasic/gods/lists/doublylinkedlist
 *  sudo pacman -S mplayer mp3info --- sudo apt-get install mplayer mp3info
 *  source with the bashrc or zshrc contents...
 *  Check that you can run gnatsd
-*  Start the nats server using gnatsd -DV (DV flags help to show a nice log of the nats clients' actions)
+*  Start nats server using gnatsd -DV (DV flags help to show a nice log of the nats clients' actions)
 *  go to the main directory.
-*  Execute "go run Server/server.go test.mp3"
-*  Execute "go run Client/client.go"
+*  Execute "go run Server/server.go"
+*  Then Execute "go run Client/client.go"
 ### Who do I talk to?
 
 ### Repo Owner
