@@ -17,6 +17,7 @@ configure the GOPATH -> environment variable.
 *  go to the main directory.
 *  Execute "go run Server/server.go"
 *  Then Execute "go run Client/client.go"
+
 ### Who do I talk to?
 
 ### Repo Owner
