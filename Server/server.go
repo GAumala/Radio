@@ -20,7 +20,7 @@ func main() {
         fmt.Println("Number of songs to play: ", list_songs.Size())
         fmt.Println("Number of songs splitted: ", list_songs_splitted.Size())
         // fmt.Println("is file splitted test.mp3", isfileSplitted(list_songs, "test.mp3"))
-        //createMissingSplits(list_songs, list_songs_splitted)
+        createMissingSplits(list_songs, list_songs_splitted)
 
         list_to_send := getListOfSplits(list_songs)
 
@@ -83,7 +83,7 @@ func main() {
 func splitmp3(fileName string){
         os.Chdir("./Server/Songs_to_Send/Splits")
         // dir,_:= os.Getwd()
-        cmd := exec.Command("/bin/mp3splt","-a","-t","0.20","-d",fileName[0:len(fileName)-4],"../"+fileName)
+	cmd := exec.Command("/bin/mp3splt","-S","10","-d",fileName[0:len(fileName)-4],"../"+fileName)
         var out bytes.Buffer
         var stderr bytes.Buffer
         cmd.Stdout = &out
