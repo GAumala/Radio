@@ -1,27 +1,37 @@
 # Distributed Systems Project - Radio
 
-you must install go V1.6
+## System dependencies
+- [Go Language v1,6+](https://golang.org/dl/)
+- [mplayer](https://www.archlinux.org/packages/extra/x86_64/mplayer/)
+- [mp3info](https://www.archlinux.org/packages/community/x86_64/mp3info/)
+- [mp3splt](https://www.archlinux.org/packages/extra/x86_64/mp3splt/)
 
-https://golang.org/dl/
+## Go dependencies
 
-###How To Install (dev mode)
-first clone this repository. Then go to the project directory
-configure the GOPATH -> environment variable.
-*  go get github.com/nats-io/nats
-*  go get github.com/nats-io/gnatsd
-*  go get github.com/emirpasic/gods/lists/doublylinkedlist
-*  sudo pacman -S mplayer mp3info --- sudo apt-get install mplayer mp3info
-*  source with the bashrc or zshrc contents...
-*  Check that you can run gnatsd
-*  Start nats server using gnatsd -DV (DV flags help to show a nice log of the nats clients' actions)
-*  go to the main directory.
-*  Execute "go run Server/server.go"
-*  Then Execute "go run Client/client.go"
+- [nats](https://github.com/nats-io/nats)
+- [gnatsd](https://github.com/nats-io/gnatsd)
+- [doublylinkedlist](https://github.com/emirpasic/gods)
 
-### Who do I talk to?
+## Installation
+Use your distro's package manager to install all system dependencies. To install
+all Go dependencies you can execute the `install.sh` script.
 
-### Repo Owner
-* Gabriel Aumala:   gaumala@espol.edu.ec
+## Running the Server
+First run gnatsd:
+```
+$GOPATH/bin/gnatsd -DV
+```
+Then run the radio server (you may want to open a new terminal for this)
+```
+go run Server/server.go
+```
+
+## Running the Client
+Once server is running you can start the clients with:
+
+```
+go run Client/client.go
+```
 
 ### Staff
 * Andres Caceres
