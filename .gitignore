@@ -25,3 +25,5 @@ _testmain.go
 *.prof
 mp3splt.log
 tracks
+
+Server/Songs_to_Send/Splits/
