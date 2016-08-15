@@ -5,9 +5,11 @@ import (
     "github.com/nats-io/nats"
     "os"
     "os/exec"
+    "os/signal"
     "io/ioutil"
     "strconv"
     "strings"
+    "syscall"
     "container/heap"
     "fmt"
 )
@@ -17,6 +19,7 @@ var trackIndex int = 0
 var h *IntHeap
 
 func main() {
+    captureInterruptSignal()
     url := getRadioUrl()
     // Create server connection
     natsConnection, _ := nats.Connect(url)
@@ -68,16 +71,31 @@ func playTrack(h *IntHeap){
 }
 
 func downloadTrack(msg *nats.Msg) {
-        content := msg.Data
-        trackIndex++ //updateIndex
-        trackToWrite := tracksDir + "cancion"+strconv.Itoa(trackIndex)+".mp3"
-        err := ioutil.WriteFile(trackToWrite, content, 0644)
-        log.Println("downloaded file: "+ trackToWrite)
-        if err != nil {
-            log.Fatal(err)
-        }
-        heap.Push(h, trackIndex)
+    content := msg.Data
+    trackIndex++ //updateIndex
+    trackToWrite := tracksDir + "cancion"+strconv.Itoa(trackIndex)+".mp3"
+    err := ioutil.WriteFile(trackToWrite, content, 0644)
+    log.Println("downloaded file: "+ trackToWrite)
+    if err != nil {
+        log.Fatal(err)
     }
+    heap.Push(h, trackIndex)
+}
+
+func cleanup(){
+    fmt.Println("Deleting downloaded tracks...")
+    os.RemoveAll(tracksDir)
+}
+func captureInterruptSignal(){
+    c := make(chan os.Signal, 2)
+    signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+    go func() {
+        <-c
+        cleanup()
+        os.Exit(1)
+    }()
+
+}
 // An IntHeap is a min-heap of ints.
 type IntHeap []int
 
