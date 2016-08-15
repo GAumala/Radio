@@ -7,6 +7,7 @@ import (
     "os/exec"
     "io/ioutil"
     "strconv"
+    "strings"
     "container/heap"
     "fmt"
 )
@@ -14,10 +15,12 @@ import (
 const tracksDir string = "tracks/"
 var trackIndex int = 0
 var h *IntHeap
+
 func main() {
+    url := getRadioUrl()
     // Create server connection
-    natsConnection, _ := nats.Connect(nats.DefaultURL)
-    log.Println("Connected to " + nats.DefaultURL)
+    natsConnection, _ := nats.Connect(url)
+    log.Println("Connected to " + url)
     // init the heap
     h = &IntHeap{}
     heap.Init(h)
@@ -31,6 +34,14 @@ func main() {
         blockUntilAvailableTrack(h)
         playTrack(h)
     }
+}
+
+func getRadioUrl() string{
+    var url string = nats.DefaultURL
+    if(len(os.Args) > 1){
+        url = strings.Replace(url, "localhost", os.Args[1], 1)
+    }
+    return url
 }
 
 func blockUntilAvailableTrack(h *IntHeap){

@@ -33,6 +33,12 @@ Once server is running you can start the clients with:
 go run Client/client.go
 ```
 
+If the server is running in a different machine, you can pass the server's IP as an argument
+
+```
+go run Client/client.go 192.168.11.46
+```
+
 ### Staff
 * Andres Caceres
 * Gabriel Aumala
