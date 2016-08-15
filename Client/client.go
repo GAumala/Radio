@@ -43,13 +43,16 @@ func main() {
                         fmt.Println("waiting for songs")
                 }
                 song_to_be_played := heap.Pop(h) //pop the next song to be played
+                cmd_wrap := exec.Command("mp3wrap","-v","album.mp3","cancion"+strconv.Itoa(song_to_be_played.(int))+".mp3")             
+                cmd_wrap.Start()
                 cmd := exec.Command("mplayer", "cancion"+strconv.Itoa(song_to_be_played.(int))+".mp3")
                 err := cmd.Start()
                 if err != nil {
                         log.Fatal(err)
                 }
                 log.Printf("Waiting for command to finish...")
-                err = cmd.Wait()		
+                err = cmd.Wait()
+            	
         }
 }
 // An IntHeap is a min-heap of ints.
