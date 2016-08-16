@@ -5,6 +5,7 @@ import (
     "github.com/nats-io/nats"
     "os"
     "os/exec"
+    "Radio/TrackData"
     "os/signal"
     "io/ioutil"
     "strconv"
@@ -23,6 +24,7 @@ func main() {
     url := getRadioUrl()
     // Create server connection
     natsConnection, _ := nats.Connect(url)
+    c, _ := nats.NewEncodedConn(natsConnection, nats.JSON_ENCODER)
     log.Println("Connected to " + url)
     // init the heap
     h = &IntHeap{}
@@ -31,7 +33,7 @@ func main() {
     os.Mkdir(tracksDir, 0744)
 
     // Subscribe to subject
-    natsConnection.Subscribe("Radio-1", downloadTrack)
+    c.Subscribe("Radio-1", downloadTrack)
 
     for true {
         blockUntilAvailableTrack(h)
@@ -70,8 +72,8 @@ func playTrack(h *IntHeap){
     err = cmd.Wait()
 }
 
-func downloadTrack(msg *nats.Msg) {
-    content := msg.Data
+func downloadTrack(data *TrackData.TrackData) {
+    content := data.File
     trackIndex++ //updateIndex
     trackToWrite := tracksDir + "cancion"+strconv.Itoa(trackIndex)+".mp3"
     err := ioutil.WriteFile(trackToWrite, content, 0644)

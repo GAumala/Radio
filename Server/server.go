@@ -6,11 +6,12 @@ import (
     "time"
     "github.com/nats-io/nats"
     "io/ioutil"
+    "Radio/TrackData"
     "fmt"
     "os/exec"
     "bytes"
     "os"
-    // "strconv"
+    "strconv"
     dll "github.com/emirpasic/gods/lists/doublylinkedlist"
 )
 
@@ -45,12 +46,15 @@ func main() {
         }
 
         natsConnection, _ := nats.Connect(nats.DefaultURL)
+        c, _ := nats.NewEncodedConn(natsConnection, nats.JSON_ENCODER)
         defer natsConnection.Close()
         log.Println("Connected to " + nats.DefaultURL)
 
-        err_nats := natsConnection.Publish(subject,file)
+        err_nats := c.Publish(subject,
+            &TrackData.TrackData{Name: "sdfsd", Index: 0, File: file})
         if err_nats!= nil {
-            log.Fatal(err)
+            log.Println("bytes: " + strconv.Itoa(len(file)))
+            log.Fatal(err_nats)
         }
 
         fmt.Println("enviando archivo "+ it.Value().(string))
@@ -63,7 +67,7 @@ func main() {
 func splitmp3(fileName string){
     os.Chdir("./Server/Songs_to_Send/Splits")
     // dir,_:= os.Getwd()
-    cmd := exec.Command("/bin/mp3splt","-S","10","-d",fileName[0:len(fileName)-4],"../"+fileName)
+    cmd := exec.Command("/bin/mp3splt","-S","20","-d",fileName[0:len(fileName)-4],"../"+fileName)
     var out bytes.Buffer
     var stderr bytes.Buffer
     cmd.Stdout = &out
@@ -121,12 +125,12 @@ func getListOfSplits(list_songs *dll.List)(*dll.List){
     list_Splits := getfiles_fromdir("Server/Songs_to_Send/Splits") //directories in the splits directory
     fmt.Println("Size: ", list_Splits.Size())
     for i :=0; i<list_Splits.Size(); i++ {
-        temp_fileName, _ := list_Splits.Get(i)
-        temp_list := getfiles_fromdir("Server/Songs_to_Send/Splits/"+temp_fileName.(string)) //directories in the splits directory
-        it := temp_list.Iterator()
-        for it.Next() {
-                list.Add("Server/Songs_to_Send/Splits/"+temp_fileName.(string)+"/"+it.Value().(string))
-        }
+            temp_fileName, _ := list_Splits.Get(i)
+            temp_list := getfiles_fromdir("Server/Songs_to_Send/Splits/"+temp_fileName.(string)) //directories in the splits directory
+            it := temp_list.Iterator()
+            for it.Next() {
+                    list.Add("Server/Songs_to_Send/Splits/"+temp_fileName.(string)+"/"+it.Value().(string))
+            }
     }
 
     return list
