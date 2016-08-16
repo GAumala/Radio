@@ -16,7 +16,6 @@ import (
 )
 
 const tracksDir string = "tracks/"
-var currentTrack int = 0
 var latestTrack int = 0
 var nowPlayingTrack string = ""
 var h *TrackHeap

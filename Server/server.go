@@ -10,7 +10,9 @@ import (
     "fmt"
     "os/exec"
     "bytes"
+    "strings"
     "os"
+    "path/filepath"
     //"strconv"
     dll "github.com/emirpasic/gods/lists/doublylinkedlist"
 )
@@ -38,8 +40,8 @@ func main() {
     		it.First()
             index = 0
     	}
-
-        file, err := ioutil.ReadFile(it.Value().(string))
+        trackToSend := it.Value().(string)
+        file, err := ioutil.ReadFile(trackToSend)
         if err != nil {
                 log.Fatal(err)
         }
@@ -54,7 +56,7 @@ func main() {
         log.Println("Connected to " + nats.DefaultURL)
 
         err_nats := c.Publish(subject,
-            &TrackData.TrackData{Name: "Queen - Bohemian Rhapsody", Index: index,
+            &TrackData.TrackData{Name: directoryName(trackToSend), Index: index,
                  File: file, Total: totalTracks})
         if err_nats!= nil {
             log.Fatal(err_nats)
@@ -67,6 +69,11 @@ func main() {
     }
 }
 
+func directoryName(trackfilepath string) string{
+    dir := filepath.Dir(trackfilepath)
+    lastIndex := strings.LastIndex(dir, "/") + 1
+    return dir[lastIndex:]
+}
 
 /* function that splits the mp3 file and returns the directory where the files are splitted. */
 func splitmp3(fileName string){
