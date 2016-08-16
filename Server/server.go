@@ -11,7 +11,7 @@ import (
     "os/exec"
     "bytes"
     "os"
-    "strconv"
+    //"strconv"
     dll "github.com/emirpasic/gods/lists/doublylinkedlist"
 )
 
@@ -30,10 +30,13 @@ func main() {
 
     it := list_to_send.Iterator()
     subject := "Radio-1"
+    var index int = 0
+    totalTracks := list_songs_splitted.Size()
     for true {
 
     	if(!it.Next()){
     		it.First()
+            index = 0
     	}
 
         file, err := ioutil.ReadFile(it.Value().(string))
@@ -51,23 +54,25 @@ func main() {
         log.Println("Connected to " + nats.DefaultURL)
 
         err_nats := c.Publish(subject,
-            &TrackData.TrackData{Name: "sdfsd", Index: 0, File: file})
+            &TrackData.TrackData{Name: "Queen - Bohemian Rhapsody", Index: index,
+                 File: file, Total: totalTracks})
         if err_nats!= nil {
-            log.Println("bytes: " + strconv.Itoa(len(file)))
             log.Fatal(err_nats)
         }
 
         fmt.Println("enviando archivo "+ it.Value().(string))
         time.Sleep(time.Duration(10)*time.Second + 1) //sleep time = song's length + 1 (10 seconds)
+        index = index + 1
 
     }
 }
+
 
 /* function that splits the mp3 file and returns the directory where the files are splitted. */
 func splitmp3(fileName string){
     os.Chdir("./Server/Songs_to_Send/Splits")
     // dir,_:= os.Getwd()
-    cmd := exec.Command("/bin/mp3splt","-S","20","-d",fileName[0:len(fileName)-4],"../"+fileName)
+    cmd := exec.Command("/bin/mp3splt","-S","15","-d",fileName[0:len(fileName)-4],"../"+fileName)
     var out bytes.Buffer
     var stderr bytes.Buffer
     cmd.Stdout = &out

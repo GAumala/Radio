@@ -16,8 +16,10 @@ import (
 )
 
 const tracksDir string = "tracks/"
-var trackIndex int = 0
-var h *IntHeap
+var currentTrack int = 0
+var latestTrack int = 0
+var nowPlayingTrack string = ""
+var h *TrackHeap
 
 func main() {
     captureInterruptSignal()
@@ -27,7 +29,7 @@ func main() {
     c, _ := nats.NewEncodedConn(natsConnection, nats.JSON_ENCODER)
     log.Println("Connected to " + url)
     // init the heap
-    h = &IntHeap{}
+    h = &TrackHeap{}
     heap.Init(h)
     // create directory for downloaded tracks
     os.Mkdir(tracksDir, 0744)
@@ -49,7 +51,7 @@ func getRadioUrl() string{
     return url
 }
 
-func blockUntilAvailableTrack(h *IntHeap){
+func blockUntilAvailableTrack(h *TrackHeap){
     if(len(*h) == 0){
         fmt.Println("waiting for tracks...")
         for(len(*h) == 0){
@@ -57,12 +59,11 @@ func blockUntilAvailableTrack(h *IntHeap){
     }
 }
 
-func playTrack(h *IntHeap){
-    song_to_be_played := heap.Pop(h) //pop the next song to be played
-    newTrack := tracksDir + "cancion" + strconv.Itoa(song_to_be_played.(int))+".mp3"
-    log.Println("playing track: " + newTrack)
-    cmd_wrap := exec.Command("mp3wrap","-v","album.mp3", newTrack)
-    cmd_wrap.Start()
+func playTrack(h *TrackHeap){
+    song_to_be_played := heap.Pop(h).(*TrackData.TrackData) //pop the next song to be played
+    trackTitle := song_to_be_played.Name
+    newTrack := getTrackFile(trackTitle, song_to_be_played.Index)
+    updateNowPlayingStatus(trackTitle)
     cmd := exec.Command("mplayer", newTrack)
     err := cmd.Start()
     if err != nil {
@@ -70,20 +71,35 @@ func playTrack(h *IntHeap){
     }
     //wait until track finishes playback
     err = cmd.Wait()
+    rm := exec.Command("rm", newTrack)
+    rm.Start()
+}
+
+func updateNowPlayingStatus(nowPlaying string){
+    if(strings.Compare(nowPlayingTrack, nowPlaying) != 0){
+        nowPlayingTrack = nowPlaying
+        log.Println("Now playing: " + nowPlayingTrack)
+    }
 }
 
 func downloadTrack(data *TrackData.TrackData) {
     content := data.File
-    trackIndex++ //updateIndex
-    trackToWrite := tracksDir + "cancion"+strconv.Itoa(trackIndex)+".mp3"
+    trackName := data.Name
+    trackToWrite := getTrackFile(trackName, latestTrack)
     err := ioutil.WriteFile(trackToWrite, content, 0644)
-    log.Println("downloaded file: "+ trackToWrite)
+    //log.Println("downloaded file: "+ data.Name)
     if err != nil {
         log.Fatal(err)
     }
-    heap.Push(h, trackIndex)
+    data.File = nil
+    data.Index = latestTrack
+    heap.Push(h, data)
+    latestTrack = latestTrack + 1
 }
 
+func getTrackFile(name string, index int) string {
+    return tracksDir + name +strconv.Itoa(index)+".mp3"
+}
 func cleanup(){
     fmt.Println("Deleting downloaded tracks...")
     os.RemoveAll(tracksDir)
@@ -98,20 +114,22 @@ func captureInterruptSignal(){
     }()
 
 }
-// An IntHeap is a min-heap of ints.
-type IntHeap []int
 
-func (h IntHeap) Len() int           { return len(h) }
-func (h IntHeap) Less(i, j int) bool { return h[i] < h[j] }
-func (h IntHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
-func (h *IntHeap) Push(x interface{}) {
+// An TrackHeap is a min-heap of ints.
+type TrackHeap []*TrackData.TrackData
+
+func (h TrackHeap) Len() int           { return len(h) }
+func (h TrackHeap) Less(i, j int) bool { return h[i].Index < h[j].Index }
+func (h TrackHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *TrackHeap) Push(x interface{}) {
     // Push and Pop use pointer receivers because they modify the slice's length,
     // not just its contents.
-    *h = append(*h, x.(int))
+    *h = append(*h, x.(*TrackData.TrackData))
 }
 
-func (h *IntHeap) Pop() interface{} {
+func (h *TrackHeap) Pop() interface{} {
     old := *h
     n := len(old)
     x := old[n-1]
