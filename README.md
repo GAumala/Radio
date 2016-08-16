@@ -1,5 +1,8 @@
 # Distributed Systems Project - Radio
 
+A simple Radio written in Go using Nats.io Publish/Subscribe. Supports many
+concurrent clients.
+
 ## System dependencies
 - [Go Language v1,6+](https://golang.org/dl/)
 - [mplayer](https://www.archlinux.org/packages/extra/x86_64/mplayer/)
@@ -13,6 +16,14 @@
 - [doublylinkedlist](https://github.com/emirpasic/gods)
 
 ## Installation
+Clone this repository **inside** your ``$GOPATH`. If you haven't set your `$GOPATH`
+add your chosen directory to your .bashrc file. This directory will contain all
+your Go code.
+
+```
+export GOPATH=~/go
+```
+
 Use your distro's package manager to install all system dependencies. To install
 all Go dependencies you can execute the `install.sh` script.
 
@@ -42,5 +53,4 @@ go run Client/client.go 192.168.11.46
 ### Staff
 * Andres Caceres
 * Gabriel Aumala
-* Jorge Uzca
 * Edgar Villaceca
